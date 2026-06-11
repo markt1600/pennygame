@@ -1,0 +1,9 @@
+{
+  "name": "pennys-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Family Room — Keep Them Alive! with a global leaderboard on Vercel",
+  "dependencies": {
+    "@upstash/redis": "^1.34.0"
+  }
+}
