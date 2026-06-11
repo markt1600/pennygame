@@ -265,6 +265,7 @@ const PET_DEFS = [
 ];
 
 const KID_NAMES = ['Lily','Sam','Rosie','Theo'];
+const KID_GENDERS = ['f','m','f','m'];
 const SHIRTS = ['#ff8fab','#5dade2','#af7ac5','#6fcf97','#f5b041','#e74c3c'];
 const HAIRS  = ['#8d5524','#2c2c2c','#d4a017','#6b3fa0','#c0392b','#3d2b1f'];
 const SKINS  = ['#ffe0bd','#f1c27d','#ffdbac','#e0ac69','#ffe0bd','#c68642'];
@@ -384,13 +385,13 @@ const deskSpot = ()=>({x: ZONES.desk.x+ZONES.desk.w/2, y: ZONES.desk.y+ZONES.des
 
 /* ---------- character ---------- */
 function makeChar(i){
-  let name, age;
-  if (i === 0){ name = 'Penny'; age = randi(28,36); }        // mom
-  else if (i === 1){ name = 'Max'; age = randi(30,40); }     // dad
-  else if (i === 2){ name = KID_NAMES[0]; age = 0; }         // newborn
-  else { name = KID_NAMES[i-2]; age = randi(3,12); }         // older kids
+  let name, age, gender;
+  if (i === 0){ name = 'Penny'; age = randi(28,36); gender = 'f'; }   // mom
+  else if (i === 1){ name = 'Max'; age = randi(30,40); gender = 'm'; }// dad
+  else if (i === 2){ name = KID_NAMES[0]; age = 0; gender = KID_GENDERS[0]; }   // newborn
+  else { name = KID_NAMES[i-2]; age = randi(3,12); gender = KID_GENDERS[i-2]; } // older kids
   return {
-    name, age, ageT: 0,
+    name, age, gender, ageT: 0,
     shirt: SHIRTS[i], hair: HAIRS[i], skin: SKINS[i],
     x: rand(PLAY.x1+60, PLAY.x2-60), y: rand(PLAY.y1+30, PLAY.y2-30),
     tx:0, ty:0, idle: rand(0.5,2), speed: rand(28,42),
@@ -401,7 +402,8 @@ function makeChar(i){
     happyT: 0, tickleT: 0, walkPhase: rand(0,6), blinkEye: 0,
     workTimer: 0, workSession: 0, wasWorking: false, returnT: 0, deskSlot: 0, atDesk: false, careerS: 0,
     deathX:0, deathY:0, ghostT:-1,
-    hairStyle: i % 3,
+    // hair by gender: mom = side buns, girls = ponytail; dad = short crop, boys = short + tuft
+    hairStyle: gender === 'f' ? (i === 0 ? 1 : 3) : (i === 1 ? 0 : 2),
   };
 }
 
@@ -1542,9 +1544,14 @@ function drawChar(c, now){
   } else if (c.hairStyle === 1){
     ctx.beginPath(); ctx.arc(x, hy-5*s, 22.5*s, Math.PI*0.95, Math.PI*2.05); ctx.fill();
     ctx.beginPath(); ctx.arc(x-20*s, hy+6*s, 6*s, 0, 7); ctx.arc(x+20*s, hy+6*s, 6*s, 0, 7); ctx.fill();
-  } else {
+  } else if (c.hairStyle === 2){
     ctx.beginPath(); ctx.arc(x, hy-8*s, 20*s, Math.PI*1.05, Math.PI*1.95); ctx.fill();
     ctx.beginPath(); ctx.arc(x, hy-22*s, 6*s, 0, 7); ctx.fill();
+  } else {
+    // 3: ponytail (girls)
+    ctx.beginPath(); ctx.arc(x, hy-6*s, 22*s, Math.PI, 0); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+20*s, hy+1*s, 6*s, 13*s, 0.35, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+18*s, hy-12*s, 5*s, 0, 7); ctx.fill();   // hair tie puff
   }
 
   // face
@@ -1560,6 +1567,14 @@ function drawChar(c, now){
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.arc(x-6*s, hy-2*s, 1.1*s, 0, 7); ctx.fill();
     ctx.beginPath(); ctx.arc(x+8*s, hy-2*s, 1.1*s, 0, 7); ctx.fill();
+    // eyelashes for the ladies
+    if (c.gender === 'f' && c.age >= 2){
+      ctx.strokeStyle = '#2c2c2c'; ctx.lineWidth = 1.1*s; ctx.lineCap = 'round';
+      [-1,1].forEach(d=>{
+        ctx.beginPath(); ctx.moveTo(x+d*10*s, hy-4.5*s); ctx.lineTo(x+d*12*s, hy-6.5*s); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+d*7*s, hy-5.5*s); ctx.lineTo(x+d*7.8*s, hy-8*s); ctx.stroke();
+      });
+    }
   }
   // blush
   ctx.fillStyle = tickling ? '#ff6d8acc' : '#ff9eaf88';
@@ -1578,6 +1593,12 @@ function drawChar(c, now){
     ctx.arc(x, hy+7*s, 4*s, 0.2*Math.PI, 0.8*Math.PI);
   }
   ctx.stroke();
+
+  // mustache for grown men (grays with age, like the hair)
+  if (c.gender === 'm' && c.age >= 20){
+    ctx.strokeStyle = hairCol; ctx.lineWidth = 3*s; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x-6*s, hy+4.5*s); ctx.quadraticCurveTo(x, hy+2*s, x+6*s, hy+4.5*s); ctx.stroke();
+  }
 
   ctx.restore();
 
