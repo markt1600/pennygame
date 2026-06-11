@@ -66,10 +66,20 @@
   }
   canvas.dragging{cursor:grabbing;}
   #setup, #gameover, #pausedOverlay{
-    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     background:#fdf6ecdd; backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
-    border-radius:20px; gap:12px; text-align:center; padding:20px; z-index:5; overflow:auto;
+    border-radius:20px; gap:9px; text-align:center; padding:16px 20px; z-index:5; overflow:auto;
   }
+  /* safe centering: centers when content fits, scrolls from the top when it doesn't */
+  #setup > :first-child, #gameover > :first-child, #pausedOverlay > :first-child{margin-top:auto;}
+  #setup > :last-child, #gameover > :last-child, #pausedOverlay > :last-child{margin-bottom:auto;}
+  #setup h2{font-size:19px;}
+  .ovRow{
+    display:flex; gap:12px; align-items:stretch; justify-content:center; flex-wrap:wrap;
+    width:100%; max-width:880px;
+  }
+  .ovRow .rules{flex:1 1 380px; max-width:520px; margin:0;}
+  .ovRow .board{flex:0 1 290px; margin:0;}
   #gameover{display:none;}
   #pausedOverlay{display:none; background:#2c1f15aa; color:#fff; gap:16px; z-index:7;}
   #pausedOverlay h2{font-size:44px; letter-spacing:3px; text-shadow:0 4px 14px #000a; animation:beat 2.4s ease-in-out infinite;}
@@ -84,7 +94,7 @@
   .bigbtn:active{transform:scale(.97); box-shadow:0 2px 0 #b54d6e;}
   .sizepick{display:flex; gap:8px;}
   .sizebtn{
-    width:46px; height:46px; font-size:18px; font-weight:800; font-family:inherit;
+    width:42px; height:42px; font-size:17px; font-weight:800; font-family:inherit;
     border:3px solid var(--ink); border-radius:14px; background:linear-gradient(180deg,#fff,#f3e9da);
     cursor:pointer; box-shadow:0 3px 0 #cdb9a3; transition:transform .1s;
   }
@@ -92,8 +102,8 @@
   .sizebtn.sel{background:linear-gradient(180deg,#8fe0b0,#5cc488); color:#fff; transform:scale(1.12); box-shadow:0 3px 0 #3c8a5c;}
   #famPreview{font-size:14px; font-weight:700;}
   .rules{
-    font-size:12.5px; background:#fffefb; border:2px dashed var(--ink); border-radius:14px;
-    padding:10px 16px; max-width:540px; line-height:1.55; box-shadow:0 6px 14px #0001;
+    font-size:11.5px; background:#fffefb; border:2px dashed var(--ink); border-radius:14px;
+    padding:8px 14px; max-width:540px; line-height:1.45; box-shadow:0 6px 14px #0001;
   }
   #log{
     width:min(960px,96vw); margin-top:10px; font-size:14px; min-height:22px;
@@ -109,8 +119,8 @@
   #pauseBtn{top:10px; right:56px;}
   /* leaderboard */
   .board{
-    background:#fffefb; border:3px solid var(--ink); border-radius:16px; padding:10px 16px 12px;
-    min-width:280px; max-width:360px; box-shadow:0 8px 18px #0002; font-size:13.5px;
+    background:#fffefb; border:3px solid var(--ink); border-radius:16px; padding:8px 14px 10px;
+    min-width:250px; max-width:360px; box-shadow:0 8px 18px #0002; font-size:12.5px;
   }
   .board h3{font-size:15px; margin-bottom:6px; letter-spacing:.4px;}
   .board ol{list-style:none; text-align:left;}
@@ -175,6 +185,7 @@
     <h2 style="font-size:18px;">🐾 How many pets?</h2>
     <div class="sizepick" id="petpick"></div>
     <div id="famPreview"></div>
+    <div class="ovRow">
     <div class="rules">
       💬 When someone needs something, drag them to the right spot — the <b>glow turns red</b> as 30s run out and they <b>wave their arms</b>. Human needs cost <b>$5</b>, pet needs <b>$1</b> — and prices rise <b>+$1 every minute</b> (capped at $10)! Miss 2 → they die 💀.<br>
       🎂 Everyone <b>ages 1 year every 10s</b>. At 100 they pass away peacefully 😇.<br>
@@ -188,18 +199,21 @@
       ⭐ <b>Score</b>: every second alive earns 1 point per living family member. ⏸️ Press <b>P</b> to pause.
     </div>
     <div class="board" id="setupBoard"><h3>🏆 Hall of Fame</h3><ol></ol><div class="src"></div></div>
+    </div>
     <button class="bigbtn" id="startBtn">Start Game</button>
   </div>
 
   <div id="gameover">
     <h2 id="goTitle">💀 Game Over</h2>
     <div id="newHigh">🎉 NEW HIGH SCORE! 🎉</div>
-    <div class="rules" id="goStats"></div>
+    <div class="ovRow">
+      <div class="rules" id="goStats"></div>
+      <div class="board" id="goBoard"><h3>🏆 Hall of Fame</h3><ol></ol><div class="src"></div></div>
+    </div>
     <div id="nameRow">
       <input id="nameInput" maxlength="20" placeholder="Your name">
       <button class="smallbtn" id="saveScoreBtn">Save score 🏆</button>
     </div>
-    <div class="board" id="goBoard"><h3>🏆 Hall of Fame</h3><ol></ol><div class="src"></div></div>
     <button class="bigbtn" id="restartBtn">Play Again</button>
   </div>
 </div>
